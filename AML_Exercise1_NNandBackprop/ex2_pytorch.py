@@ -103,7 +103,7 @@ class MultiLayerPerceptron(nn.Module):
 		self.input_size = input_size
 		self.hidden_layers = hidden_layers
 		self.hl1 = nn.Linear(input_size, hidden_layers[0])
-
+		self.hl2 = nn.Linear(hidden_layers[0], hidden_layers[0])
 		self.o = nn.Linear(hidden_layers[0], num_classes)
 
 		# dropout layer (p=0.2)
@@ -131,10 +131,11 @@ class MultiLayerPerceptron(nn.Module):
 
 		# hidden layer, with relu activation function
 		hl1 = F.relu(self.hl1(inp))
+		hl2 = F.relu(self.hl2(hl1))
 		# x = self.droput(x)
-
 		# add output layer
-		out = self.o(hl1)
+		out = self.o(hl2)
+
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 		return out
@@ -174,8 +175,10 @@ if train:
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 			predicted = model(images)
+
 			loss = criterion(predicted, labels)
 
+			optimizer.zero_grad()
 			# computes the gradient of the loss
 			loss.backward()
 			# updates parameters based on the gradient information
@@ -202,7 +205,7 @@ if train:
 				####################################################
 				# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 				pred = model(images)
-				predicted = torch.argmax(pred, dim=1)
+				predicted = torch.argmax(pred, dim=-1)
 
 				# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 				total += labels.size(0)
