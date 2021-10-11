@@ -131,11 +131,10 @@ class MultiLayerPerceptron(nn.Module):
 
 		# hidden layer, with relu activation function
 		hl1 = F.relu(self.hl1(inp))
-		#x = self.droput(x)
+		# x = self.droput(x)
 
 		# add output layer
 		out = self.o(hl1)
-
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 		return out
@@ -175,7 +174,7 @@ if train:
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 			predicted = model(images)
-			loss = F.cross_entropy(predicted, labels)
+			loss = criterion(predicted, labels)
 
 			# computes the gradient of the loss
 			loss.backward()
@@ -253,6 +252,8 @@ else:
 			# 2. Get the most confident predicted class        #
 			####################################################
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+			pred = model(images)
+			predicted = torch.argmax(pred, dim=1)
 
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 			total += labels.size(0)
