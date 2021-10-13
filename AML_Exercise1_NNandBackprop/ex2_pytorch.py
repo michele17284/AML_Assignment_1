@@ -26,7 +26,7 @@ print('Using device: %s' % device)
 # Hyper-parameters
 # --------------------------------
 input_size = 32 * 32 * 3
-hidden_size = [50]
+hidden_size = [256, 160, 80, 30]  # , 256, 512, 1024
 num_classes = 10
 num_epochs = 10
 batch_size = 200
@@ -36,6 +36,7 @@ reg = 0.001
 num_training = 49000
 num_validation = 1000
 train = True
+dropout = 0.5
 
 # -------------------------------------------------
 # Load the CIFAR-10 dataset
@@ -101,14 +102,23 @@ class MultiLayerPerceptron(nn.Module):
 		# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 		# linear layer (imput_size -> hidden_layers[0])
 		self.input_size = input_size
-		self.hidden_layers = hidden_layers
-		self.hl1 = nn.Linear(input_size, hidden_layers[0])
-		self.hl2 = nn.Linear(hidden_layers[0], hidden_layers[0])
-		self.o = nn.Linear(hidden_layers[0], num_classes)
 
-		# dropout layer (p=0.2)
-		# dropout prevents overfitting of data
-		# self.droput = nn.Dropout(0.2)
+		layers += [
+			nn.Linear(input_size, hidden_layers[0]),
+			torch.nn.ReLU(),
+
+			nn.Linear(hidden_layers[0], hidden_layers[1]),
+			torch.nn.ReLU(),
+
+			nn.Linear(hidden_layers[1], hidden_layers[2]),
+			torch.nn.ReLU(),
+
+			nn.Linear(hidden_layers[2], hidden_layers[3]),
+			torch.nn.ReLU(),
+
+			nn.Linear(hidden_layers[-1], num_classes),
+
+		]
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -127,14 +137,9 @@ class MultiLayerPerceptron(nn.Module):
 		# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 		# flatten image input
-		inp = x.view(-1, self.input_size)
+		x = x.view(-1, self.input_size)
 
-		# hidden layer, with relu activation function
-		hl1 = F.relu(self.hl1(inp))
-		hl2 = F.relu(self.hl2(hl1))
-		# x = self.droput(x)
-		# add output layer
-		out = self.o(hl2)
+		out = self.layers(x)
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -255,8 +260,9 @@ else:
 			# 2. Get the most confident predicted class        #
 			####################################################
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
 			pred = model(images)
-			predicted = torch.argmax(pred, dim=1)
+			predicted = torch.argmax(pred, dim=-1)
 
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 			total += labels.size(0)
