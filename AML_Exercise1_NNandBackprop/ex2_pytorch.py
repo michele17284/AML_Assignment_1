@@ -26,7 +26,7 @@ print('Using device: %s' % device)
 # Hyper-parameters
 # --------------------------------
 input_size = 32 * 32 * 3
-hidden_size = [256, 160, 80, 30]  # , 256, 512, 1024
+hidden_size = [128, 50]  # , 256, 512, 1024
 num_classes = 10
 num_epochs = 10
 batch_size = 200
@@ -111,9 +111,6 @@ class MultiLayerPerceptron(nn.Module):
 			torch.nn.ReLU(),
 
 			nn.Linear(hidden_layers[1], hidden_layers[2]),
-			torch.nn.ReLU(),
-
-			nn.Linear(hidden_layers[2], hidden_layers[3]),
 			torch.nn.ReLU(),
 
 			nn.Linear(hidden_layers[-1], num_classes),
