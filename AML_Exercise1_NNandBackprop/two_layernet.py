@@ -102,12 +102,13 @@ class TwoLayerNet(object):
             sum = np.sum(e_x, axis=1, keepdims=True)    # returns sum of each row and keeps same dims
             return e_x / sum
 
-        scores = np.dot(X,W1) + b1
-        scores = scores * (scores > 0)
-        scores = np.dot(scores,W2) + b2
+        a1 = X
+        z2 = np.dot(X,W1) + b1
+        a2 = np.maximum(0, z2)
+        z3 = np.dot(a2,W2) + b2
         #for i in range(len(scores)):
         #        scores[i] = softmax(scores[i])
-        scores = softmax(scores)
+        scores = softmax(z3)
 
         results = np.argmax(scores,axis=1)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -135,8 +136,8 @@ class TwoLayerNet(object):
         results = np.argmax(scores, axis=1)
         log_likelihood = -np.log(scores[range(N), y])
         loss = np.sum(log_likelihood) / N
-        lambd = 0.02
-        regularization_cost = lambd * (np.sum(np.square(W1)) + np.sum(np.square(W2)))/ 2*N
+
+        regularization_cost = reg * (np.sum(np.square(W1)) + np.sum(np.square(W2)))
         loss += regularization_cost
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -150,10 +151,20 @@ class TwoLayerNet(object):
         ##############################################################################
 
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        
-        
 
-        pass
+        grads = {}
+
+        dscores = scores
+        dscores[range(N), y] -= 1
+        dscores /= N
+        grads['W2'] = np.dot(a2.T, dscores)
+        grads['b2'] = np.sum(dscores, axis=0)
+        dhidden = np.dot(dscores, W2.T)
+        dhidden[z2 <= 0] = 0
+        grads['W1'] = np.dot(a1.T, dhidden)
+        grads['b1'] = np.sum(dhidden, axis=0)
+        grads['W2'] += 2 * reg * W2
+        grads['W1'] += 2 * reg * W1
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
