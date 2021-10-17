@@ -26,18 +26,16 @@ print('Using device: %s' % device)
 # Hyper-parameters
 # --------------------------------
 input_size = 32 * 32 * 3
-hidden_size = [128, 50]  # , 256, 512, 1024
+hidden_size = [50, 50, 50, 50, 50]
 num_classes = 10
 num_epochs = 10
 batch_size = 200
-learning_rate = 1e-3
-learning_rate_decay = 0.95
+learning_rate = 1e-2
+learning_rate_decay = 0.96
 reg = 0.001
 num_training = 49000
 num_validation = 1000
 train = True
-dropout = 0.5
-
 # -------------------------------------------------
 # Load the CIFAR-10 dataset
 # -------------------------------------------------
@@ -103,19 +101,22 @@ class MultiLayerPerceptron(nn.Module):
 		# linear layer (imput_size -> hidden_layers[0])
 		self.input_size = input_size
 
-		layers += [
-			nn.Linear(input_size, hidden_layers[0]),
-			torch.nn.ReLU(),
+		layers += [nn.Linear(input_size, hidden_layers[0]),
+		           torch.nn.ReLU(),
 
-			nn.Linear(hidden_layers[0], hidden_layers[1]),
-			torch.nn.ReLU(),
+		           nn.Linear(hidden_layers[0], hidden_layers[1]),
+		           torch.nn.ReLU(),
 
-			nn.Linear(hidden_layers[1], hidden_layers[2]),
-			torch.nn.ReLU(),
+		           nn.Linear(hidden_layers[1], hidden_layers[2]),
+		           torch.nn.ReLU(),
 
-			nn.Linear(hidden_layers[-1], num_classes),
+		           nn.Linear(hidden_layers[2], hidden_layers[3]),
+		           torch.nn.ReLU(),
 
-		]
+		           nn.Linear(hidden_layers[3], hidden_layers[4]),
+		           torch.nn.ReLU(),
+
+		           nn.Linear(hidden_layers[-1], num_classes)]
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -162,6 +163,10 @@ if train:
 	# Train the model
 	lr = learning_rate
 	total_step = len(train_loader)
+
+	logloss = dict()
+	vallog = dict()
+
 	for epoch in range(num_epochs):
 		for i, (images, labels) in enumerate(train_loader):
 			# Move tensors to the configured device
@@ -180,16 +185,17 @@ if train:
 
 			loss = criterion(predicted, labels)
 
-			optimizer.zero_grad()
 			# computes the gradient of the loss
 			loss.backward()
 			# updates parameters based on the gradient information
 			optimizer.step()
+			optimizer.zero_grad()
 
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 			if (i + 1) % 100 == 0:
 				print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
+				logloss[str(epoch)] = loss.item()
 
 		# Code to update the lr
 		lr *= learning_rate_decay
@@ -214,6 +220,15 @@ if train:
 				correct += (predicted == labels).sum().item()
 
 			print('Validataion accuracy is: {} %'.format(100 * correct / total))
+			vallog[str(epoch)] = 100 * correct / total
+
+	# Todo: remove
+	f = open("out.csv", "w")
+	txt = "Epocs," + ",".join([e for e, l in logloss.items()]) + "\n"
+	txt += "Loss," + ",".join([str(l) for e, l in logloss.items()]) + "\n"
+	txt += "Val," + ",".join([str(v) for e, v in vallog.items()])
+	f.write(txt)
+	f.close()
 
 	##################################################################################
 	# TODO: Now that you can train a simple two-layer MLP using above code, you can  #
