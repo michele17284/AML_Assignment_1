@@ -296,6 +296,7 @@ class TwoLayerNet(object):
         scores = self.loss(X)
 
         y_pred = np.argmax(scores, axis=1)
+
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         return y_pred
