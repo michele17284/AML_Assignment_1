@@ -213,10 +213,14 @@ class TwoLayerNet(object):
             #########################################################################
             
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            
-            
-            
-            pass
+            #print(X_batch)
+            rng = np.random.default_rng()
+            idx = rng.choice(num_train,min(batch_size,num_train),replace=False)
+            #idx = np.random.randint(num_train,size=min(batch_size,num_train))
+            X_batch = X[idx]
+            y_batch = y[idx]
+            #print(X_batch)
+
         
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -235,7 +239,10 @@ class TwoLayerNet(object):
             
             
             
-            pass
+            self.params["W1"] -= grads["W1"]*learning_rate
+            self.params["W2"] -= grads["W2"]*learning_rate
+            self.params["b1"] -= grads["b1"]*learning_rate
+            self.params["b2"] -= grads["b2"]*learning_rate
         
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
