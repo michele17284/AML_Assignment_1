@@ -97,9 +97,9 @@ class TwoLayerNet(object):
         #print(W2.shape)
         #print(b2.shape)
         def softmax(x):
-            max = np.max(x, axis=1, keepdims=True)      # returns max of each row and keeps same dims
-            e_x = np.exp(x - max)                       # subtracts each row with its max value
-            sum = np.sum(e_x, axis=1, keepdims=True)    # returns sum of each row and keeps same dims
+            max = np.max(x, axis=1, keepdims=True)
+            e_x = np.exp(x - max)
+            sum = np.sum(e_x, axis=1, keepdims=True)
             return e_x / sum
 
         a1 = X
@@ -293,8 +293,9 @@ class TwoLayerNet(object):
 
 
 
-        pass
+        scores = self.loss(X)
 
+        y_pred = np.argmax(scores, axis=1)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         return y_pred
