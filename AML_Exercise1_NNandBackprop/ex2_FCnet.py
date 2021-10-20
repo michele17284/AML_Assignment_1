@@ -275,9 +275,80 @@ best_net = None # store the best model into this
 
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+hyperparameters = [
 
+    {
+        "input_size":32 * 32 * 3,
+        "hidden_size":50,
+        "num_classes":10,
+        "iterations":1000,
+        "batch_size":200,
+        "lr":1e-3,
+        "lr_decay":0.95,
+        "reg":0.25
+    },
+    {
+        "input_size":32 * 32 * 3,
+        "hidden_size":50,
+        "num_classes":10,
+        "iterations":1000,
+        "batch_size":200,
+        "lr":2e-3,
+        "lr_decay":0.95,
+        "reg":0.25
+    },
+    {
+        "input_size":32 * 32 * 3,
+        "hidden_size":50,
+        "num_classes":10,
+        "iterations":2000,
+        "batch_size":200,
+        "lr":1e-3,
+        "lr_decay":0.95,
+        "reg":0.25
+    },
+{
+        "input_size":32 * 32 * 3,
+        "hidden_size":50,
+        "num_classes":10,
+        "iterations":2000,
+        "batch_size":200,
+        "lr":1e-3,
+        "lr_decay":0.95,
+        "reg":0.4
+    }
+]
+mods_n_acc = []
+for hyp in hyperparameters:
+    print("model")
+    net = TwoLayerNet(input_size, hyp["hidden_size"], num_classes)
+    # Train the network
+    stats = net.train(X_train, y_train, X_val, y_val,
+                num_iters=hyp["iterations"], batch_size=hyp["batch_size"],
+                learning_rate=hyp["lr"], learning_rate_decay=hyp["lr_decay"],
+                reg=hyp["reg"], verbose=True)
 
-pass
+    # Predict on the validation set
+    val_acc = (net.predict(X_val) == y_val).mean()
+    mods_n_acc.append((net,val_acc))
+    print('Validation accuracy: ', val_acc)
+
+    plt.figure(3)
+    plt.subplot(2, 1, 1)
+    plt.plot(stats['loss_history'])
+    plt.title('Loss history')
+    plt.xlabel('Iteration')
+    plt.ylabel('Loss')
+
+    plt.subplot(2, 1, 2)
+    plt.plot(stats['train_acc_history'], label='train')
+    plt.plot(stats['val_acc_history'], label='val')
+    plt.title('Classification accuracy history')
+    plt.xlabel('Epoch')
+    plt.ylabel('Classification accuracy')
+    plt.legend()
+    plt.show()
+print('models: ', mods_n_acc)
 
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
