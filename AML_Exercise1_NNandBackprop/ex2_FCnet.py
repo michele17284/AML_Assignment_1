@@ -307,15 +307,45 @@ hyperparameters = [
         "lr_decay":0.95,
         "reg":0.25
     },
-{
+    {
         "input_size":32 * 32 * 3,
-        "hidden_size":50,
+        "hidden_size":1000,
+        "num_classes":10,
+        "iterations":1000,
+        "batch_size":200,
+        "lr":2e-3,
+        "lr_decay":0.95,
+        "reg":0.25
+    },
+    {
+        "input_size":32 * 32 * 3,
+        "hidden_size":1000,
         "num_classes":10,
         "iterations":2000,
         "batch_size":200,
         "lr":1e-3,
         "lr_decay":0.95,
-        "reg":0.4
+        "reg":0.25
+    },
+    {
+        "input_size":32 * 32 * 3,
+        "hidden_size":1000,
+        "num_classes":10,
+        "iterations":500,
+        "batch_size":200,
+        "lr":1e-3,
+        "lr_decay":0.95,
+        "reg":0.25
+    },
+    {
+        "input_size":32 * 32 * 3,
+        "hidden_size":2000,
+        "num_classes":10,
+        "iterations":2000,
+        "batch_size":200,
+        "lr":1e-3,
+        "lr_decay":0.95,
+        "reg":0.25
     }
 ]
 mods_n_acc = []
@@ -349,7 +379,8 @@ for hyp in hyperparameters:
     plt.legend()
     plt.show()
 print('models: ', mods_n_acc)
-
+print(sorted(mods_n_acc,key=lambda x:x[1]))
+best_net = sorted(mods_n_acc,key=lambda x:x[1])[-1][0]
 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 
