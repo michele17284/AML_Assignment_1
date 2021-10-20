@@ -276,81 +276,96 @@ best_net = None # store the best model into this
 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 hyperparameters = [
+    {
+        "model": 1,
+        "input_size": 32 * 32 * 3,
+        "hidden_size": 50,
+        "num_classes": 10,
+        "iterations": 1000,
+        "batch_size": 200,
+        "lr": 1e-3,
+        "lr_decay": 0.95,
+        "reg": 0.25
+    },
+    {
+        "model": 2,
+        "input_size": 32 * 32 * 3,
+        "hidden_size": 50,
+        "num_classes": 10,
+        "iterations": 1000,
+        "batch_size": 200,
+        "lr": 2e-3,
+        "lr_decay": 0.95,
+        "reg": 0.25
+    },
+    {
+        "model": 3,
+        "input_size": 32 * 32 * 3,
+        "hidden_size": 50,
+        "num_classes": 10,
+        "iterations": 2000,
+        "batch_size": 200,
+        "lr": 1e-3,
+        "lr_decay": 0.95,
+        "reg": 0.25
+    },
 
-    {
-        "input_size":32 * 32 * 3,
-        "hidden_size":50,
-        "num_classes":10,
-        "iterations":1000,
-        "batch_size":200,
-        "lr":1e-3,
-        "lr_decay":0.95,
-        "reg":0.25
+    {  # 4
+        "model": 5,
+        "input_size": 32 * 32 * 3,
+        "hidden_size": 1000,
+        "num_classes": 10,
+        "iterations": 2000,
+        "batch_size": 200,
+        "lr": 1e-3,
+        "lr_decay": 0.95,
+        "reg": 0.25
     },
-    {
-        "input_size":32 * 32 * 3,
-        "hidden_size":50,
-        "num_classes":10,
-        "iterations":1000,
-        "batch_size":200,
-        "lr":2e-3,
-        "lr_decay":0.95,
-        "reg":0.25
-    },
-    {
-        "input_size":32 * 32 * 3,
-        "hidden_size":50,
-        "num_classes":10,
-        "iterations":2000,
-        "batch_size":200,
-        "lr":1e-3,
-        "lr_decay":0.95,
-        "reg":0.25
-    },
-    {
+    {"model": 6,
+     "input_size": 32 * 32 * 3,
+     "hidden_size": 1000,
+     "num_classes": 10,
+     "iterations": 2000,
+     "batch_size": 512,
+     "lr": 1e-3,
+     "lr_decay": 0.95,
+     "reg": 0.25
+     },
+    {   "model":9,
         "input_size":32 * 32 * 3,
         "hidden_size":1000,
         "num_classes":10,
-        "iterations":1000,
-        "batch_size":200,
-        "lr":2e-3,
-        "lr_decay":0.95,
-        "reg":0.25
-    },
-    {
-        "input_size":32 * 32 * 3,
-        "hidden_size":1000,
-        "num_classes":10,
-        "iterations":2000,
-        "batch_size":200,
+        "iterations":3000,
+        "batch_size":512,
         "lr":1e-3,
         "lr_decay":0.95,
         "reg":0.25
     },
-    {
+    {   "model":10,
         "input_size":32 * 32 * 3,
         "hidden_size":1000,
         "num_classes":10,
-        "iterations":500,
-        "batch_size":200,
+        "iterations":4000,
+        "batch_size":512,
         "lr":1e-3,
         "lr_decay":0.95,
         "reg":0.25
     },
-    {
+    {   "model":11,
         "input_size":32 * 32 * 3,
-        "hidden_size":2000,
+        "hidden_size":1000,
         "num_classes":10,
-        "iterations":2000,
-        "batch_size":200,
+        "iterations":5000,
+        "batch_size":512,
         "lr":1e-3,
         "lr_decay":0.95,
         "reg":0.25
     }
 ]
+
 mods_n_acc = []
 for hyp in hyperparameters:
-    print("model")
+    print("model "+str(hyp["model"]))
     net = TwoLayerNet(input_size, hyp["hidden_size"], num_classes)
     # Train the network
     stats = net.train(X_train, y_train, X_val, y_val,
@@ -363,7 +378,7 @@ for hyp in hyperparameters:
     mods_n_acc.append((net,val_acc))
     print('Validation accuracy: ', val_acc)
 
-    plt.figure(3)
+    plt.figure(10,figsize=[10,10])
     plt.subplot(2, 1, 1)
     plt.plot(stats['loss_history'])
     plt.title('Loss history')
