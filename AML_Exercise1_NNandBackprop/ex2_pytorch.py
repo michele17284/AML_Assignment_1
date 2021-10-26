@@ -40,7 +40,6 @@ num_validation = 1000
 train = True
 train = False
 dropout = 0.0002
-modelname = "model+" + str(len(hidden_size) + 1) + "layer" + "_epochs" + str(num_epochs) + "_lr" + str(learning_rate) + "_decay" + str(learning_rate_decay) + "_reg" + str(reg) + "_batch" + str(batch_size) + "_dropout" + str(dropout) + "_ELU"
 
 # -------------------------------------------------
 # Load the CIFAR-10 dataset
@@ -150,7 +149,6 @@ for param_tensor in model.state_dict():
 '''
 
 if train:
-	writer = SummaryWriter("./runs/"+ modelname)
 
 	model.apply(weights_init)
 	model.train()  # set dropout and batch normalization layers to training mode
@@ -192,9 +190,8 @@ if train:
 
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-			if (i + 1) % total_step == 0:
+			if (i + 1) % 200 == 0:
 				print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
-				writer.add_scalar("Loss/train", loss, epoch)
 
 		# Code to update the lr
 		lr *= learning_rate_decay
@@ -219,10 +216,8 @@ if train:
 				correct += (predicted == labels).sum().item()
 
 			print('Validataion accuracy is: {} %'.format(100 * correct / total))
-			writer.add_scalar("Accuracy/test", (100 * correct / total), epoch)
 
-	writer.flush()
-	writer.close()
+
 	##################################################################################
 	# TODO: Now that you can train a simple two-layer MLP using above code, you can  #
 	# easily experiment with adding more layers and different layer configurations   #
@@ -238,14 +233,14 @@ if train:
 	##################################################################################
 
 	# Save the model checkpoint
-	torch.save(model.state_dict(),  modelname + '.ckpt')
+	torch.save(model.state_dict(),  'model.ckpt')
 
 else:
 	# Run the test code once you have your by setting train flag to false
 	# and loading the best model
 
 	best_model = None
-	best_model = torch.load(modelname + ".ckpt")
+	best_model = torch.load("model.ckpt")
 
 	model.load_state_dict(best_model)
 
