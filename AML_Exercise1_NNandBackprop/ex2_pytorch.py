@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
+from tensorboardX import SummaryWriter
+
 
 
 def weights_init(m):
@@ -26,16 +28,20 @@ print('Using device: %s' % device)
 # Hyper-parameters
 # --------------------------------
 input_size = 32 * 32 * 3
-hidden_size = [50, 50, 50, 50, 50]
+hidden_size = [1500, 512, 150, 50, 50]
 num_classes = 10
-num_epochs = 10
-batch_size = 200
-learning_rate = 1e-2
-learning_rate_decay = 0.96
-reg = 0.001
+num_epochs = 20 #default 10
+batch_size = 200 #default 200
+learning_rate = 0.007 #default 1e-3
+learning_rate_decay = 0.91 #default 0.95
+reg = 0.0001 #default 0.001
 num_training = 49000
 num_validation = 1000
 train = True
+train = False
+dropout = 0.0002
+modelname = "model+" + str(len(hidden_size) + 1) + "layer" + "_epochs" + str(num_epochs) + "_lr" + str(learning_rate) + "_decay" + str(learning_rate_decay) + "_reg" + str(reg) + "_batch" + str(batch_size) + "_dropout" + str(dropout) + "_ELU"
+
 # -------------------------------------------------
 # Load the CIFAR-10 dataset
 # -------------------------------------------------
@@ -101,22 +107,13 @@ class MultiLayerPerceptron(nn.Module):
 		# linear layer (imput_size -> hidden_layers[0])
 		self.input_size = input_size
 
-		layers += [nn.Linear(input_size, hidden_layers[0]),
-		           torch.nn.ReLU(),
-
-		           nn.Linear(hidden_layers[0], hidden_layers[1]),
-		           torch.nn.ReLU(),
-
-		           nn.Linear(hidden_layers[1], hidden_layers[2]),
-		           torch.nn.ReLU(),
-
-		           nn.Linear(hidden_layers[2], hidden_layers[3]),
-		           torch.nn.ReLU(),
-
-		           nn.Linear(hidden_layers[3], hidden_layers[4]),
-		           torch.nn.ReLU(),
-
-		           nn.Linear(hidden_layers[-1], num_classes)]
+		layers += [
+			nn.Linear(input_size, hidden_layers[0]), nn.ELU(), nn.Dropout(dropout),
+			nn.Linear(hidden_layers[0], hidden_layers[1]), nn.ELU(),  nn.Dropout(dropout),
+			nn.Linear(hidden_layers[1], hidden_layers[2]), nn.ELU(),  nn.Dropout(dropout),
+			nn.Linear(hidden_layers[2], hidden_layers[3]), nn.ELU(),  nn.Dropout(dropout),
+			nn.Linear(hidden_layers[3], hidden_layers[4]), nn.ELU(),  nn.Dropout(dropout),
+      nn.Linear(hidden_layers[-1], num_classes)]
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -153,6 +150,8 @@ for param_tensor in model.state_dict():
 '''
 
 if train:
+	writer = SummaryWriter("./runs/"+ modelname)
+
 	model.apply(weights_init)
 	model.train()  # set dropout and batch normalization layers to training mode
 
@@ -193,9 +192,9 @@ if train:
 
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-			if (i + 1) % 100 == 0:
+			if (i + 1) % total_step == 0:
 				print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
-				logloss[str(epoch)] = loss.item()
+				writer.add_scalar("Loss/train", loss, epoch)
 
 		# Code to update the lr
 		lr *= learning_rate_decay
@@ -220,16 +219,10 @@ if train:
 				correct += (predicted == labels).sum().item()
 
 			print('Validataion accuracy is: {} %'.format(100 * correct / total))
-			vallog[str(epoch)] = 100 * correct / total
+			writer.add_scalar("Accuracy/test", (100 * correct / total), epoch)
 
-	# Todo: remove
-	f = open("out.csv", "w")
-	txt = "Epocs," + ",".join([e for e, l in logloss.items()]) + "\n"
-	txt += "Loss," + ",".join([str(l) for e, l in logloss.items()]) + "\n"
-	txt += "Val," + ",".join([str(v) for e, v in vallog.items()])
-	f.write(txt)
-	f.close()
-
+	writer.flush()
+	writer.close()
 	##################################################################################
 	# TODO: Now that you can train a simple two-layer MLP using above code, you can  #
 	# easily experiment with adding more layers and different layer configurations   #
@@ -239,20 +232,20 @@ if train:
 	# record the final validation accuracies Report your observations on how adding  #
 	# more layers to the MLP affects its behavior. Try to improve the model          #
 	# configuration using the validation performance as the guidance. You can        #
-	# experiment with different activation layers available in torch.nn, adding      #
+	#   with different activation layers available in torch.nn, adding      #
 	# dropout layers, if you are interested. Use the best model on the validation    #
 	# set, to evaluate the performance on the test set once and report it            #
 	##################################################################################
 
 	# Save the model checkpoint
-	torch.save(model.state_dict(), 'model.ckpt')
+	torch.save(model.state_dict(),  modelname + '.ckpt')
 
 else:
 	# Run the test code once you have your by setting train flag to false
 	# and loading the best model
 
 	best_model = None
-	best_model = torch.load('model.ckpt')
+	best_model = torch.load(modelname + ".ckpt")
 
 	model.load_state_dict(best_model)
 
