@@ -37,7 +37,7 @@ learning_rate_decay = 0.91 #default 0.95
 reg = 0.0001 #default 0.001
 num_training = 49000
 num_validation = 1000
-train = True
+train = False
 dropout = 0.0002
 
 # -------------------------------------------------
