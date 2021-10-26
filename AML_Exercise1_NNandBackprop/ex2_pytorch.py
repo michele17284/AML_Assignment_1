@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
+from tensorboardX import SummaryWriter
+
 
 
 def weights_init(m):
@@ -26,17 +28,17 @@ print('Using device: %s' % device)
 # Hyper-parameters
 # --------------------------------
 input_size = 32 * 32 * 3
-hidden_size = [128, 50]  # , 256, 512, 1024
+hidden_size = [1500, 512, 150, 50, 50]
 num_classes = 10
-num_epochs = 10
-batch_size = 200
-learning_rate = 1e-3
-learning_rate_decay = 0.95
-reg = 0.001
+num_epochs = 20 #default 10
+batch_size = 200 #default 200
+learning_rate = 0.007 #default 1e-3
+learning_rate_decay = 0.91 #default 0.95
+reg = 0.0001 #default 0.001
 num_training = 49000
 num_validation = 1000
-train = True
-dropout = 0.5
+train = False
+dropout = 0.0002
 
 # -------------------------------------------------
 # Load the CIFAR-10 dataset
@@ -104,18 +106,12 @@ class MultiLayerPerceptron(nn.Module):
 		self.input_size = input_size
 
 		layers += [
-			nn.Linear(input_size, hidden_layers[0]),
-			torch.nn.ReLU(),
-
-			nn.Linear(hidden_layers[0], hidden_layers[1]),
-			torch.nn.ReLU(),
-
-			nn.Linear(hidden_layers[1], hidden_layers[2]),
-			torch.nn.ReLU(),
-
-			nn.Linear(hidden_layers[-1], num_classes),
-
-		]
+			nn.Linear(input_size, hidden_layers[0]), nn.ELU(), nn.Dropout(dropout),
+			nn.Linear(hidden_layers[0], hidden_layers[1]), nn.ELU(),  nn.Dropout(dropout),
+			nn.Linear(hidden_layers[1], hidden_layers[2]), nn.ELU(),  nn.Dropout(dropout),
+			nn.Linear(hidden_layers[2], hidden_layers[3]), nn.ELU(),  nn.Dropout(dropout),
+			nn.Linear(hidden_layers[3], hidden_layers[4]), nn.ELU(),  nn.Dropout(dropout),
+      nn.Linear(hidden_layers[-1], num_classes)]
 
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -152,6 +148,7 @@ for param_tensor in model.state_dict():
 '''
 
 if train:
+
 	model.apply(weights_init)
 	model.train()  # set dropout and batch normalization layers to training mode
 
@@ -162,6 +159,10 @@ if train:
 	# Train the model
 	lr = learning_rate
 	total_step = len(train_loader)
+
+	logloss = dict()
+	vallog = dict()
+
 	for epoch in range(num_epochs):
 		for i, (images, labels) in enumerate(train_loader):
 			# Move tensors to the configured device
@@ -180,15 +181,15 @@ if train:
 
 			loss = criterion(predicted, labels)
 
-			optimizer.zero_grad()
 			# computes the gradient of the loss
 			loss.backward()
 			# updates parameters based on the gradient information
 			optimizer.step()
+			optimizer.zero_grad()
 
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-			if (i + 1) % 100 == 0:
+			if (i + 1) % 200 == 0:
 				print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
 
 		# Code to update the lr
@@ -215,6 +216,7 @@ if train:
 
 			print('Validataion accuracy is: {} %'.format(100 * correct / total))
 
+
 	##################################################################################
 	# TODO: Now that you can train a simple two-layer MLP using above code, you can  #
 	# easily experiment with adding more layers and different layer configurations   #
@@ -224,20 +226,20 @@ if train:
 	# record the final validation accuracies Report your observations on how adding  #
 	# more layers to the MLP affects its behavior. Try to improve the model          #
 	# configuration using the validation performance as the guidance. You can        #
-	# experiment with different activation layers available in torch.nn, adding      #
+	#   with different activation layers available in torch.nn, adding      #
 	# dropout layers, if you are interested. Use the best model on the validation    #
 	# set, to evaluate the performance on the test set once and report it            #
 	##################################################################################
 
 	# Save the model checkpoint
-	torch.save(model.state_dict(), 'model.ckpt')
+	torch.save(model.state_dict(),  'model.ckpt')
 
 else:
 	# Run the test code once you have your by setting train flag to false
 	# and loading the best model
 
 	best_model = None
-	best_model = torch.load('model.ckpt')
+	best_model = torch.load("model.ckpt")
 
 	model.load_state_dict(best_model)
 
